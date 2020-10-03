@@ -17,7 +17,7 @@ inquirer.prompt([
         choices: ["View All Employees", "View All Employees by Department", "View All Employees by Manager", "Add New Employee", "Delete Employee", "Update Employee Role", "Update Employee Manager"]
     }
 ]),
-//CHOICES [0], [1], AND [2] FROM THE CHOICES ARRAY IN THE FIRST PROMPT DO NOT LEAD TO MORE PROMPTS, BUT DISPLAY ON SCREEN THE RESULTS.
+//CHOICES [0], [1], AND [2] FROM THE CHOICES ARRAY IN THE FIRST PROMPT DO NOT /////LEAD TO MORE PROMPTS, BUT DISPLAY ON SCREEN THE RESULTS.
 
 //IF CHOICE [0], DISPLAY ALL EMPLOYEES CHART ON SCREEN.
 
