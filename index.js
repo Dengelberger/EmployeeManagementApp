@@ -97,39 +97,102 @@ const updateEmployeeDB = () => {
 // };
 // //ADD NEW DEPARTMENT.
 
-// const addNewDepartment = () => {
+const addNewDepartment = () => {
 
+    inquirer.prompt([
+        {
+            name: "departmentName",
+            message: "What is the name of the department you want to create?",
+            type: "input"
+        }
+    ]).then(postAnswers => {
+        connection.query("INSERT INTO departments(name) VALUES(?)", [postAnswers.departmentName], function (err, postAnswers) {
+            if (err)
+                throw err;
+            console.log("new department has successfully been added.");
+            console.log(postAnswers);
 
-// };
+            updateEmployeeDB();
+        });
+});
+};
+//ADD NEW ROLE.
 
+const addNewRole = () => {
 
-// //ADD NEW ROLE.
+//TO QUERY FOR THE DEPARTMENTS 
+connection.query(`SELECT id, name FROM departments`, function (err, data) {
+        if (err)
+            throw err;
+let objects = [];
+let departArray = [];
 
-// const addNewRole = () => {
+        if (data.length > 0) {
 
+            for (i = 0; i < data.length; i++) {
+                objects[i] = { id: parseInt(data[i].id), name: data[i].department_name }
+                departArray.push(objects[i]);
+            }
+        } else {
+            console.log('Sorry, you need to add a new role before adding an employee.');
+            return;
+        }
 
-// };
+        inquirer.prompt([
+            {
+                name: "deptName",
+                message: "What is the name of the department for your new role?",
+                type: "list",
+                choices: departArray
+            },
+            {
+                name: "roleName",
+                message: "What is the name of the role you want to create?",
+                type: "input"
+            },
+            {
+                name: "salary",
+                message: "What is the salary amount for this role?",
+                type: "input"
+            }
 
-// //ADD A NEW EMPLOYEE.
+        ]).then(postAnswers => {
+            let departID = "";
+            for (i = 0; i < departArray.length; i++) {
+                if (postAnswers.deptName == departArray[i].name) {
+                    departID = departArray[i].id;
+                }
+            }
+            connection.query("INSERT INTO roles(title, salary, department_id) VALUES(?, ?, ?)", [postAnswers.roleName, postAnswers.salary, departID], function (err, postData) {
+                if (err)
+                    throw err;
+                console.log("new role has successfully been added.");
+                console.log(postAnswers);
 
+                updateEmployeeDB();
+            });
+
+        });
+
+//ADD A NEW EMPLOYEE.
 // const addNewEmployees = () => {
-
-//     //TO QUERY FOR THE EMPLOYEE ROLES
-//     connection.query(`SELECT title, id FROM roles`, function (err, data) {
+// //TO QUERY FOR THE DEPARTMENTS
+//     connection.query(`SELECT name, id FROM departments`, function (err, data) {
 //         if (err)
 //             throw err;
+//         let departments;
 //         if (data.length > 0) {
 
-//             const employeeRoles = data.map(item => item = item.title);
+//             const departments = data.map(item => item = item.name);
 //         } else {
 //             console.log('Sorry, you need to add a new role before adding an employee.');
 //             return;
 //         }
 
-//         //TO QUERY FOR THE MANAGERS - find a way to get all the managers from the employees list.
-//         connection.query(`SELECT * FROM employees`, function (err, data) {
-//             if (err)
-//                 throw err;
+// //TO QUERY FOR THE MANAGERS - find a way to get all the managers from the employees list.       
+//     connection.query(`SELECT * FROM employees`, function (err, data) {
+//         if (err)
+//             throw err;
 
 //             const employees = data.map(item => item = item.name);
 //             employees.push("none");
@@ -146,72 +209,61 @@ const updateEmployeeDB = () => {
 //                     message: "What is the new employee's last name?",
 //                     type: "input"
 //                 },
-
 //                 {
-//                     name: "role",
-//                     message: "What is the new employee's role?",
+//                     name: "dept",
+//                     message: "What is the new employee's department?",
 //                     type: "list",
-//                     choices: employeeRoles
-//                 },
-
-//                 {
-//                     name: "manager_name",
-//                     message: "Who will be this employee's manager?",
-//                     type: "list",
-//                     choices: managerNames
+//                     choices: departments
 //                 }
+//                 //TO QUERY FOR THE EMPLOYEE ROLES
 
-//             ]).then(postAnswers => {
-//             connection.query("INSERT INTO employees(first_name, last_name, role) VALUES(?, ?, ?)", [postAnswers.first_name, postAnswers.last_name, postAnswers.role], function (err, postData) {
-//                 if (err)
-//                     throw err;
-//                 console.log("new employee has successfully been added.");
-//                 console.log(postAnswers);
+//             ]).then function addDeptRole() {
+//                 connection.query(`SELECT title, id FROM roles`, function (err, data) {
+//                     if (err)
+//                         throw err;
+//                     let employeeRoles;
+//                     if (data.length > 0) {
 
-//                 updateEmployeeDB();
-//             };
-//         });
-//     };
-// }
+//                         employeeRoles = data.map(item => item = item.title);
+//                     } else {
+//                         console.log('Sorry, you need to add a new role before adding an employee.');
+//                         return;
+//                     };
+//                     inquirer.prompt([
+//                         {
+//                             name: "role",
+//                             message: "What is the new employee's role?",
+//                             type: "list",
+//                             choices: employeeRoles
+//                         }
+//                     ]).then function addMgrName() {
+//                         connection.query(`SELECT first_name, last_name, id FROM employees WHERE department_id = dept`, function (err, data) {
+//                             if (err)
+//                                 throw err;
 
-// //UPDATE AN EMPLOYEE'S ROLE.
+//                             const managerNames = data.map(item => newObj = {
+//                                 name: item.first_name + " " + item.last_name,
+//                                 value: item.id
+//                             });
+//                             managerNames.push("none");
+//                             inquirer.prompt([
+//                                 {
+//                                     name: "manager_name",
+//                                     message: "Who will be this employee's manager?",
+//                                     type: "list",
+//                                     choices: managerNames
+//                                 }
 
-// const updateEmployeeRole = () => {
-//         connection.query("SELECT * FROM employees", function (err, employeeData) {
-//             if (err)
-//                 throw err;
+//                             ]).then(postAnswers => {
+//                                 connection.query("INSERT INTO employees(first_name, last_name, role) VALUES(?, ?, ?)", [postAnswers.first_name, postAnswers.last_name, postAnswers.role], function (err, postData) {
+//                                     if (err)
+//                                         throw err;
+//                                     console.log("new employee has successfully been added.");
+//                                     console.log(postAnswers);
 
-//             // console.log(productData);
-
-//             if (employeeData.length > 0) {
-
-//                 const employeeNames = employeeData.map(item => item.name);
-
-//                 inquirer.prompt([
-//                     {
-//                         name: "name",
-//                         message: "Which employee do you wish to update?",
-//                         type: "choice",
-//                         choices: employeeNames,
-//                         default: "none"
-//                     },
-
-//                     {   //THIS IS THE SAME PROMPT AS WHEN ADDING A NEW EMPLOYEE.
-//                         name: "role",
-//                         message: "What is the new employee's role?",
-//                         type: "choice",
-//                         choices: employeeRoles,
-//                         default: "none"
-//                     }
-//                     //AT THIS POINT WE WANT TO SEND THE NEW INFORMATION TO THE DB TO UPDATE THIS EMPLOYEE'S ROLE IN THE EMPLOYEES TABLE.
-//                 ]).then(postAnswers => {
-//                     connection.query("UPDATE employees(first_name, last_name, role) VALUES(?, ?, ?)", [postAnswers.first_name, postAnswers.last_name, postAnswers.role], function (err, postData) {
-//                         if (err)
-//                             throw err;
-//                         console.log("This employee's role  has successfully been updated.");
-//                         console.log(postAnswers);
-
-//                         updateEmployeeDB();
-//                     });
-//                 });
-//             };
+//                                     updateEmployeeDB();
+//                                 };
+//                             });
+//                         };
+//                         }
+    })}
