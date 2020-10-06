@@ -114,28 +114,28 @@ const addNewDepartment = () => {
 
             updateEmployeeDB();
         });
-});
+    });
 };
 //ADD NEW ROLE.
 
 const addNewRole = () => {
 
-//TO QUERY FOR THE DEPARTMENTS 
-connection.query(`SELECT id, name FROM departments`, function (err, data) {
+    //TO QUERY FOR THE DEPARTMENTS 
+    connection.query(`SELECT id, name FROM departments`, function (err, data) {
         if (err)
             throw err;
-let objects = [];
-let departArray = [];
-
+        let objects = [];
+        let departArray = [];
         if (data.length > 0) {
 
             for (i = 0; i < data.length; i++) {
-                objects[i] = { id: parseInt(data[i].id), name: data[i].department_name }
+
+                objects[i] = { id: parseInt(data[i].id), name: data[i].name }
                 departArray.push(objects[i]);
             }
         } else {
             console.log('Sorry, you need to add a new role before adding an employee.');
-            return;
+            updateEmployeeDB();
         }
 
         inquirer.prompt([
@@ -173,97 +173,102 @@ let departArray = [];
             });
 
         });
+    })
+};
+//WE ARE GOOD UP TO THIS POINT!!!!  IF I CAN GET THIS PART, I WILL HAVE IT!
 
 //ADD A NEW EMPLOYEE.
-// const addNewEmployees = () => {
-// //TO QUERY FOR THE DEPARTMENTS
-//     connection.query(`SELECT name, id FROM departments`, function (err, data) {
-//         if (err)
-//             throw err;
-//         let departments;
-//         if (data.length > 0) {
+const addNewEmployees = () => {
 
-//             const departments = data.map(item => item = item.name);
-//         } else {
-//             console.log('Sorry, you need to add a new role before adding an employee.');
-//             return;
-//         }
+    //TO QUERY FOR THE DEPARTMENTS 
+    connection.query(`SELECT id, name FROM departments`, function (err, data) {
+        if (err)
+            throw err;
+        let objects = [];
+        let departArray = [];
+        if (data.length > 0) {
 
-// //TO QUERY FOR THE MANAGERS - find a way to get all the managers from the employees list.       
-//     connection.query(`SELECT * FROM employees`, function (err, data) {
-//         if (err)
-//             throw err;
+            for (i = 0; i < data.length; i++) {
 
-//             const employees = data.map(item => item = item.name);
-//             employees.push("none");
+                objects[i] = { id: parseInt(data[i].id), name: data[i].name }
+                departArray.push(objects[i]);
+            }
+            inquirer.prompt([
+                {
+                    name: "first_name",
+                    message: "What is the new employee's first name?",
+                    type: "input"
+                },
 
-//             inquirer.prompt([
-//                 {
-//                     name: "first_name",
-//                     message: "What is the new employee's first name?",
-//                     type: "input"
-//                 },
+                {
+                    name: "last_name",
+                    message: "What is the new employee's last name?",
+                    type: "input"
+                },
+                {
+                    name: "dept",
+                    message: "What is the new employee's department?",
+                    type: "list",
+                    choices: departArray
+                }
 
-//                 {
-//                     name: "last_name",
-//                     message: "What is the new employee's last name?",
-//                     type: "input"
-//                 },
-//                 {
-//                     name: "dept",
-//                     message: "What is the new employee's department?",
-//                     type: "list",
-//                     choices: departments
-//                 }
-//                 //TO QUERY FOR THE EMPLOYEE ROLES
+            ]).then, function addDeptRole() {
 
-//             ]).then function addDeptRole() {
-//                 connection.query(`SELECT title, id FROM roles`, function (err, data) {
-//                     if (err)
-//                         throw err;
-//                     let employeeRoles;
-//                     if (data.length > 0) {
+                //TO QUERY FOR THE EMPLOYEE ROLES
 
-//                         employeeRoles = data.map(item => item = item.title);
-//                     } else {
-//                         console.log('Sorry, you need to add a new role before adding an employee.');
-//                         return;
-//                     };
-//                     inquirer.prompt([
-//                         {
-//                             name: "role",
-//                             message: "What is the new employee's role?",
-//                             type: "list",
-//                             choices: employeeRoles
-//                         }
-//                     ]).then function addMgrName() {
-//                         connection.query(`SELECT first_name, last_name, id FROM employees WHERE department_id = dept`, function (err, data) {
-//                             if (err)
-//                                 throw err;
+                connection.query(`SELECT title, id FROM roles`, function (err, data) {
+                    if (err)
+                        throw err;
+                    let employeeRoles;
+                    if (data.length > 0) {
+                        employeeRoles = data.map(item => item = item.title);
+                    } else {
+                        console.log('Sorry, you need to add a new role before adding an employee.');
+                        updateEmployeeDB();
+                    };
+                    inquirer.prompt([
+                        {
+                            name: "role",
+                            message: "What is the new employee's role?",
+                            type: "list",
+                            choices: employeeRoles
+                        }
+                    ]).then, function addMgrName() {
+                         //TO QUERY FOR THE MANAGERS   
+                        connection.query(`SELECT first_name, last_name, id FROM employees WHERE department_id = dept`, function (err, data) {
+                            if (err)
+                                throw err;
 
-//                             const managerNames = data.map(item => newObj = {
-//                                 name: item.first_name + " " + item.last_name,
-//                                 value: item.id
-//                             });
-//                             managerNames.push("none");
-//                             inquirer.prompt([
-//                                 {
-//                                     name: "manager_name",
-//                                     message: "Who will be this employee's manager?",
-//                                     type: "list",
-//                                     choices: managerNames
-//                                 }
+                            const managerNames = data.map(item => newObj = {
+                                name: item.first_name + " " + item.last_name,
+                                value: item.id
+                            });
+                            managerNames.push("none");
+                            inquirer.prompt([
+                                {
+                                    name: "manager_name",
+                                    message: "Who will be this employee's manager?",
+                                    type: "list",
+                                    choices: managerNames
+                                }
 
-//                             ]).then(postAnswers => {
-//                                 connection.query("INSERT INTO employees(first_name, last_name, role) VALUES(?, ?, ?)", [postAnswers.first_name, postAnswers.last_name, postAnswers.role], function (err, postData) {
-//                                     if (err)
-//                                         throw err;
-//                                     console.log("new employee has successfully been added.");
-//                                     console.log(postAnswers);
+                            ]).then(postAnswers => {
+                                connection.query("INSERT INTO employees(first_name, last_name, role) VALUES(?, ?, ?)", [postAnswers.first_name, postAnswers.last_name, postAnswers.role], function (err, postData) {
+                                    if (err)
+                                        throw err;
+                                    console.log("new employee has successfully been added.");
+                                    console.log(postAnswers);
 
-//                                     updateEmployeeDB();
-//                                 };
-//                             });
-//                         };
-//                         }
-    })}
+                                    updateEmployeeDB();
+                                }
+                                )
+                            })
+
+                        });
+                    }
+                
+                })
+            }
+         }
+     })
+    }
