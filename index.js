@@ -35,7 +35,7 @@ const updateEmployeeDB = () => {
             name: "menuChoice",
             message: "What would you like to do?",
             type: "list",
-            choices: ["View All Employees", "View All Employees by Department", "View All Employees by Manager", "Add New Employee", "Delete Employee", "Update Employee Role", "Update Employee Manager", "Quit"]
+            choices: ["View All Employees", "View All Departments", "View All Roles", "Add New Department", "Add New Role", "Add New Employee", "Update Employee Role", "Exit"]
         }
 
     ]).then(({ menuChoice }) => {
@@ -43,23 +43,23 @@ const updateEmployeeDB = () => {
             case "View All Employees":
                 displayAllEmployees();
                 break;
-            case "View All Employees by Department":
-                displayEmployeesByDepartment();
+            case "View All Departments":
+                displayAllDepartments();
                 break;
-            case "View All Employees by Manager":
-                displayEmployeesByManager();
+            case "View All Roles":
+                displayAllRoles();
+                break;
+            case "Add New Department":
+                addNewDepartment();
+                break;
+            case "Add New Role":
+                addNewRole();
                 break;
             case "Add New Employee":
                 addNewEmployees();
                 break;
-            case "Delete Employee":
-                deleteEmployee();
-                break;
             case "Update Employee Role":
                 updateEmployeeRole();
-                break;
-            case "Update Employee Manager":
-                updateEmployeeManager();
                 break;
             default:
                 connection.end();
@@ -67,206 +67,151 @@ const updateEmployeeDB = () => {
     });
 
 };
-//IF CHOICE [0], DISPLAY ALL EMPLOYEES CHART ON SCREEN.
+//DISPLAY ALL EMPLOYEES CHART ON SCREEN. USE CONSOLE.TABLE HERE
 
-const displayAllEmployees = ()=> {
-    
-    console.table({
+// const displayAllEmployees = () => {
 
-    })
-};
+//     console.table({
 
-//IF CHOICE [1], DISPLAY ALL EMPLOYEES SORTED BY DEPARTMENT ON SCREEN.
+//     })
+// };
 
-const displayEmployeesByDepartment = () => {
+// //DISPLAY ALL DEPARTMENTS CHART ON SCREEN. USE CONSOLE.TABLE HERE
 
-    console.table({
+// const displayAllDepartments = () => {
 
-    })
-};
+//     console.table({
 
-//IF CHOICE [2], DISPLAY ALL EMPLOYEES SORTED BY MANAGER ON THE SCREEN.
+//     })
+// };
 
-const displayEmployeesByManager = () => {
+// //DISPLAY ALL ROLES CHART ON THE SCREEN. USE CONSOLE.TABLE HERE
 
-    console.table({
+// const displayAllRoles = () => {
 
-        
-    })
+//     console.table({
 
-};
 
-//IF CHOICE [3] Inquirer Prompt #2 THIS IS TO ADD A NEW EMPLOYEE.
+//     })
 
-var employeeRoles = ["Sales Lead", "Salesperson", "Lead Engineer", "Software Engineer", "Account Manager", "Accountant", "Legal Team Lead"];
+// };
+// //ADD NEW DEPARTMENT.
 
-const addNewEmployees = () => {
+// const addNewDepartment = () => {
 
-    inquirer.prompt([
-        {
-            name: "first_name",
-            message: "What is the new employee's first name?",
-            type: "input"
-        },
 
-        {
-            name: "last_name",
-            message: "What is the new employee's last name?",
-            type: "input"
-        },
+// };
 
-        {
-            name: "role",
-            message: "What is the new employee's role?",
-            type: "list",
-            choices: employeeRoles,
-            default: "none"
-        }
-    ])
-}.then(addManager => {
-    connection.query(`SELECT "Sales Lead", "Lead Engineer", "Accountant", "Legal Team Lead" FROM employees.role`, function (err, managerData) {
-        if (err)
-            throw err;
-        if (managerData.length > 0) {
 
-            const managerNames = managerData.map(item = item.name);
+// //ADD NEW ROLE.
 
-            inquirer.prompt([
-                {
-                    name: "manager_name",
-                    message: "Who will be this employee's manager?",
-                    type: "list",
-                    choices: managerNames,
-                    default: "none"
-                }
-        }
-    }
-    ]).then(postAnswers => {
-        connection.query("INSERT INTO employees(first_name, last_name, role) VALUES(?, ?, ?)", [postAnswers.first_name, postAnswers.last_name, postAnswers.role], function (err, postData) {
-            if (err)
-                throw err;
-            console.log("new employee has successfully been added.");
-            console.log(postAnswers);
+// const addNewRole = () => {
 
-            updateEmployeeDB();
-        });
-    });
-}
 
-//IF CHOICE [4] Inquirer Prompt #3 THIS IS TO REMOVE AN EXISTING EMPLOYEE.
+// };
 
-const deleteEmployee = () => {
+// //ADD A NEW EMPLOYEE.
 
-    connection.query("SELECT * FROM employees", function (err, employeeData) {
-        if (err)
-            throw err;
+// const addNewEmployees = () => {
 
-        // console.log(productData);
+//     //TO QUERY FOR THE EMPLOYEE ROLES
+//     connection.query(`SELECT title, id FROM roles`, function (err, data) {
+//         if (err)
+//             throw err;
+//         if (data.length > 0) {
 
-        if (employeeData.length > 0) {
+//             const employeeRoles = data.map(item => item = item.title);
+//         } else {
+//             console.log('Sorry, you need to add a new role before adding an employee.');
+//             return;
+//         }
 
-            const employeeNames = employeeData.map(item => item.name);
+//         //TO QUERY FOR THE MANAGERS - find a way to get all the managers from the employees list.
+//         connection.query(`SELECT * FROM employees`, function (err, data) {
+//             if (err)
+//                 throw err;
 
-            inquirer.prompt([
-                {
-                    name: "nameToDelete",
-                    message: "Which employee do you wish to delete?",
-                    type: "choice",
-                    choices: employeeNames,
-                    default: "none"
-                }
-                //AT THIS POINT WE WANT TO SEND THE INFORMATION TO THE DB TO UPDATE THE EMPLOYEES TABLE TO EXCLUDE THIS EMPLOYEE.
-            ]).then(postAnswers => {
-                connection.query("DELETE FROM employees(first_name, last_name, role) VALUES(?, ?, ?)", [postAnswers.first_name, postAnswers.last_name, postAnswers.role], function (err, postData) {
-                    if (err)
-                        throw err;
-                    console.log(`${nameToDelete} has been deleted.`);
-                    console.log(postAnswers);
+//             const employees = data.map(item => item = item.name);
+//             employees.push("none");
 
-                    updateEmployeeDB();
-                });
-            });
-        };
-    });
+//             inquirer.prompt([
+//                 {
+//                     name: "first_name",
+//                     message: "What is the new employee's first name?",
+//                     type: "input"
+//                 },
 
-    // IF CHOICE [5] Inquirer Prompt #4  THIS PROMPT IS TO UPDATE AN EMPLOYEE'S ROLE.
+//                 {
+//                     name: "last_name",
+//                     message: "What is the new employee's last name?",
+//                     type: "input"
+//                 },
 
-    const updateEmployeeRole = () => {
-        connection.query("SELECT * FROM employees", function (err, employeeData) {
-            if (err)
-                throw err;
+//                 {
+//                     name: "role",
+//                     message: "What is the new employee's role?",
+//                     type: "list",
+//                     choices: employeeRoles
+//                 },
 
-            // console.log(productData);
+//                 {
+//                     name: "manager_name",
+//                     message: "Who will be this employee's manager?",
+//                     type: "list",
+//                     choices: managerNames
+//                 }
 
-            if (employeeData.length > 0) {
+//             ]).then(postAnswers => {
+//             connection.query("INSERT INTO employees(first_name, last_name, role) VALUES(?, ?, ?)", [postAnswers.first_name, postAnswers.last_name, postAnswers.role], function (err, postData) {
+//                 if (err)
+//                     throw err;
+//                 console.log("new employee has successfully been added.");
+//                 console.log(postAnswers);
 
-                const employeeNames = employeeData.map(item => item.name);
+//                 updateEmployeeDB();
+//             };
+//         });
+//     };
+// }
 
-                inquirer.prompt([
-                    {
-                        name: "name",
-                        message: "Which employee do you wish to update?",
-                        type: "choice",
-                        choices: employeeNames,
-                        default: "none"
-                    },
+// //UPDATE AN EMPLOYEE'S ROLE.
 
-                    {   //THIS IS THE SAME PROMPT AS WHEN ADDING A NEW EMPLOYEE.
-                        name: "role",
-                        message: "What is the new employee's role?",
-                        type: "choice",
-                        choices: employeeRoles,
-                        default: "none"
-                    }
-                    //AT THIS POINT WE WANT TO SEND THE NEW INFORMATION TO THE DB TO UPDATE THIS EMPLOYEE'S ROLE IN THE EMPLOYEES TABLE.
-                ]).then(postAnswers => {
-                    connection.query("UPDATE employees(first_name, last_name, role) VALUES(?, ?, ?)", [postAnswers.first_name, postAnswers.last_name, postAnswers.role], function (err, postData) {
-                        if (err)
-                            throw err;
-                        console.log("This employee's role  has successfully been updated.");
-                        console.log(postAnswers);
+// const updateEmployeeRole = () => {
+//         connection.query("SELECT * FROM employees", function (err, employeeData) {
+//             if (err)
+//                 throw err;
 
-                        updateEmployeeDB();
-                    });
-                });
-            };
+//             // console.log(productData);
 
-//IF CHOICE [6] Inquirer Prompt #5  THIS PROMPT IS TO UPDATE AN EMPLOYEE'S MANAGER.
+//             if (employeeData.length > 0) {
 
-const updateEmployeeManager = () => {
-    connection.query("SELECT * FROM employees", function (err, employeeData) {
-        if (err)
-            throw err;
-        if (employeeData.length > 0) {
+//                 const employeeNames = employeeData.map(item => item.name);
 
-            const employeeNames = employeeData.map(item => item.name);
+//                 inquirer.prompt([
+//                     {
+//                         name: "name",
+//                         message: "Which employee do you wish to update?",
+//                         type: "choice",
+//                         choices: employeeNames,
+//                         default: "none"
+//                     },
 
-            inquirer.prompt([
-                {
-                    name: "name",
-                    message: "Which employee do you wish to update?",
-                    type: "choice",
-                    choices: employeeNames,
-                    default: "none"
-                },
+//                     {   //THIS IS THE SAME PROMPT AS WHEN ADDING A NEW EMPLOYEE.
+//                         name: "role",
+//                         message: "What is the new employee's role?",
+//                         type: "choice",
+//                         choices: employeeRoles,
+//                         default: "none"
+//                     }
+//                     //AT THIS POINT WE WANT TO SEND THE NEW INFORMATION TO THE DB TO UPDATE THIS EMPLOYEE'S ROLE IN THE EMPLOYEES TABLE.
+//                 ]).then(postAnswers => {
+//                     connection.query("UPDATE employees(first_name, last_name, role) VALUES(?, ?, ?)", [postAnswers.first_name, postAnswers.last_name, postAnswers.role], function (err, postData) {
+//                         if (err)
+//                             throw err;
+//                         console.log("This employee's role  has successfully been updated.");
+//                         console.log(postAnswers);
 
-                {
-                    name: "manager",
-                    message: "Who is the new employee's manager?",
-                    type: "choice",
-                    choices: managerNames,
-                    default: "none"
-                }
-
-            ]).then(postAnswers => {
-                connection.query("UPDATE employees(first_name, last_name, role) VALUES(?, ?, ?)", [postAnswers.first_name, postAnswers.last_name, postAnswers.role], function (err, postData) {
-                    if (err)
-                        throw err;
-                    console.log("This employee's role  has successfully been updated.");
-                    console.log(postAnswers);
-
-                    updateEmployeeDB();
-                });
-            });
-        };
-
+//                         updateEmployeeDB();
+//                     });
+//                 });
+//             };
