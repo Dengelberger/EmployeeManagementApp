@@ -180,7 +180,6 @@ const addNewRole = () => {
         });
     })
 };
-//WE ARE GOOD UP TO THIS POINT!!!! 
 
 //ADD A NEW EMPLOYEE.
 const addNewEmployees = () => {
