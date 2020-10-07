@@ -92,7 +92,7 @@ const displayAllDepartments = () => {
 // //DISPLAY ALL ROLES CHART ON THE SCREEN. USE CONSOLE.TABLE HERE
 
 const displayAllRoles = () => {
-    connection.query(`SELECT roles.title, roles.salary, departments.name FROM roles LEFT JOIN departments ON roles.department_id = departments.id`, function (err, data) {
+    connection.query(`SELECT roles.title, roles.salary, departments.name AS department FROM roles LEFT JOIN departments ON roles.department_id = departments.id`, function (err, data) {
         if (err)
             throw err;
         console.table(['roles.title', 'roles.salary', 'departments.name'], data);
