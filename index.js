@@ -195,7 +195,7 @@ const addNewEmployees = () => {
 
             for (i = 0; i < data.length; i++) {
 
-                objects[i] = { id: parseInt(data[i].id), name: data[i].name }
+                objects[i] = { value: parseInt(data[i].id), name: data[i].name }
                 departArray.push(objects[i]);
             }
             inquirer.prompt([
@@ -216,16 +216,17 @@ const addNewEmployees = () => {
                     type: "list",
                     choices: departArray
                 }
-            ]).then, function addDeptRole() {
-//THE APP BREAKS RIGHT HERE
+            ]).then(function (employeeInfo1) {
+
                 //TO QUERY FOR THE EMPLOYEE ROLES
 
-                connection.query(`SELECT title, id FROM roles`, function (err, data) {
+                connection.query(`SELECT title, roles.id FROM roles LEFT JOIN departments ON roles.department_id = departments.id WHERE departments.id = ?`, [employeeInfo1.dept], function (err, data) {
                     if (err)
                         throw err;
                     let employeeRoles;
                     if (data.length > 0) {
-                        employeeRoles = data.map(item => item = item.title);
+                        employeeRoles = data.map(item => newObj = {
+                            name: item.title, value: item.id});
                     } else {
                         console.log('Sorry, you need to add a new role before adding an employee.');
                         updateEmployeeDB();
@@ -238,7 +239,7 @@ const addNewEmployees = () => {
                             choices: employeeRoles
                         }
 
-                    ]).then, function addMgrName() {
+                    ]).then(function (employeeInfo2) {
                         //TO QUERY FOR THE MANAGERS   
                         connection.query(`SELECT first_name, last_name, id FROM employees`, function (err, data) {
                             if (err)
@@ -257,12 +258,18 @@ const addNewEmployees = () => {
                                     choices: managerNames
                                 }
 
-                            ]).then(postAnswers => {
-                                connection.query("INSERT INTO employees(first_name, last_name, role) VALUES(?, ?, ?)", [postAnswers.first_name, postAnswers.last_name, postAnswers.role], function (err, postData) {
+                            ]).then(employeeInfo3 => {
+                                let managerId;
+                                if(employeeInfo3.manager_name === "none") {
+                                    managerId = null
+                                } else {
+                                    managerId = employeeInfo3.manager_name
+                                }
+                                connection.query("INSERT INTO employees(first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)", [employeeInfo1.first_name, employeeInfo1.last_name, employeeInfo2.role, managerId], function (err, postData) {
                                     if (err)
                                         throw err;
                                     console.log("new employee has successfully been added.");
-                                    console.log(postAnswers);
+                                    console.log(postData);
 
                                     updateEmployeeDB();
                                 }
@@ -270,24 +277,28 @@ const addNewEmployees = () => {
                             })
 
                         });
-                    }
+                    })
 
                 })
             }
-        }
+            )}
     })
 }
 //UPDATE EMPLOYEE ROLE
 const updateEmployeeRole = () => {
 
     //TO QUERY FOR THE EMPLOYEE LIST
-    connection.query(`SELECT * from employees`, function (err, data) {
+    connection.query(`SELECT first_name, last_name, id FROM employees`, function (err, data) {
         if (err)
             throw err;
-        var employees = [];
+        const employees = data.map(item => newObj = {
+            name: item.first_name + " " + item.last_name,
+            value: item.id
+             });
+       
         employees.push(data);
 
-        inquirer.prompt([
+              inquirer.prompt([
             {
                 name: "employeeName",
                 message: "Which employee would you like to update?",
@@ -295,14 +306,15 @@ const updateEmployeeRole = () => {
                 choices: employees
             }
 
-        ]).then, function chooseRole() {
+        ]).then(function (employeeUpdate1) {
             //TO QUERY FOR THE EMPLOYEE ROLES
             connection.query(`SELECT title, id FROM roles`, function (err, data) {
                 if (err)
                     throw err;
                 let employeeRoles;
                 if (data.length > 0) {
-                    employeeRoles = data.map(item => item = item.title);
+                    employeeRoles = data.map(item => newObj = {
+                        name: item.title, value: item.id});
                 };
                 inquirer.prompt([
                     {
@@ -313,18 +325,18 @@ const updateEmployeeRole = () => {
                     }
                 
                 ]).then(postAnswers => {
-                    connection.query("UPDATE employees(first_name, last_name, role) VALUES(?, ?, ?)", [postAnswers.first_name, postAnswers.last_name, postAnswers.role], function (err, postData) {
+                    connection.query("UPDATE employees(first_name, last_name, role_id) VALUES(?, ?, ?)", [employeeUpdate1.empUpFirstName, employeeUpdate1.empUpLastName, employeeRoles], function (err, postData) {
                         if (err)
                             throw err;
                         console.log("this employee's role has successfully been updated.");
-                        console.log(postAnswers);
+                        console.log(postData);
 
                         updateEmployeeDB();
                     }
 
                     )
-                })
+                  })
             })
-        }
+        })
     })
 }
