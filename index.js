@@ -4,8 +4,7 @@ const path = require("path");
 const fs = require("fs");
 require("console.table");
 
-const OUTPUT_DIR = path.resolve(__dirname, "output");
-
+const OUTPUT_DIR = path.resolve(__dirname, "output");  //I DON'T KNOW WHAT THIS DOES OR WHY I NEED IT.
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -26,9 +25,9 @@ connection.connect(function (err) {
 
 const updateEmployeeDB = () => {
 
-    //Prompts used to build the database:
+    //PROMPTS USED TO BUILD THE DATABASE
 
-    //Inquirer Prompt #1 THIS IS THE INITIAL QUESTION FOR THE APP TO RUN.
+    //THIS IS THE INITIAL QUESTION FOR THE APP TO RUN.
 
     inquirer.prompt([
         {
@@ -74,11 +73,7 @@ const displayAllEmployees = () => {
     connection.query(`SELECT employees.first_name, employees.last_name, roles.title, roles.salary, roles.department_id FROM employees LEFT JOIN roles ON employees.role_id = roles.id`, function (err, data) {
         if (err)
             throw err;
-        var employeeTable = [];
-        employeeTable.push(data);
-        console.log(employeeTable);
-
-        console.table({ employeeTable });
+        console.table(['employees.first_name', 'employees.last_name', 'roles.title', 'roles.salary', 'roles.department_id'], data);
         updateEmployeeDB();
     })
 };
@@ -89,25 +84,18 @@ const displayAllDepartments = () => {
     connection.query(`SELECT * from departments`, function (err, data) {
         if (err)
             throw err;
-        var departmentTable = [];
-        departmentTable.push(data);
-        console.log(departmentTable);
+        console.table(['id', 'name'], data);
 
-        console.table({ departmentTable });
         updateEmployeeDB();
-    });
-}
+    })
+;}
 // //DISPLAY ALL ROLES CHART ON THE SCREEN. USE CONSOLE.TABLE HERE
 
 const displayAllRoles = () => {
     connection.query(`SELECT roles.title, roles.salary, departments.name FROM roles LEFT JOIN departments ON roles.department_id = departments.id`, function (err, data) {
         if (err)
             throw err;
-        var rolesTable = [];
-        rolesTable.push(data);
-        console.log(rolesTable);
-
-        console.table({ rolesTable });
+        console.table(['roles.title', 'roles.salary', 'departments.name'], data);
         updateEmployeeDB();
 
     });
@@ -192,7 +180,7 @@ const addNewRole = () => {
         });
     })
 };
-//WE ARE GOOD UP TO THIS POINT!!!!  IF I CAN GET THIS PART, I WILL HAVE IT!
+//WE ARE GOOD UP TO THIS POINT!!!! 
 
 //ADD A NEW EMPLOYEE.
 const addNewEmployees = () => {
@@ -228,9 +216,8 @@ const addNewEmployees = () => {
                     type: "list",
                     choices: departArray
                 }
-
             ]).then, function addDeptRole() {
-
+//THE APP BREAKS RIGHT HERE
                 //TO QUERY FOR THE EMPLOYEE ROLES
 
                 connection.query(`SELECT title, id FROM roles`, function (err, data) {
@@ -250,17 +237,18 @@ const addNewEmployees = () => {
                             type: "list",
                             choices: employeeRoles
                         }
+
                     ]).then, function addMgrName() {
                         //TO QUERY FOR THE MANAGERS   
                         connection.query(`SELECT first_name, last_name, id FROM employees`, function (err, data) {
                             if (err)
                                 throw err;
-
                             const managerNames = data.map(item => newObj = {
                                 name: item.first_name + " " + item.last_name,
                                 value: item.id
                             });
                             managerNames.push("none");
+                            console.log(managerNames);
                             inquirer.prompt([
                                 {
                                     name: "manager_name",
@@ -323,11 +311,12 @@ const updateEmployeeRole = () => {
                         type: "list",
                         choices: employeeRoles
                     }
+                
                 ]).then(postAnswers => {
-                    connection.query("INSERT INTO employees(first_name, last_name, role) VALUES(?, ?, ?)", [postAnswers.first_name, postAnswers.last_name, postAnswers.role], function (err, postData) {
+                    connection.query("UPDATE employees(first_name, last_name, role) VALUES(?, ?, ?)", [postAnswers.first_name, postAnswers.last_name, postAnswers.role], function (err, postData) {
                         if (err)
                             throw err;
-                        console.log("new employee has successfully been added.");
+                        console.log("this employee's role has successfully been updated.");
                         console.log(postAnswers);
 
                         updateEmployeeDB();
